@@ -1,0 +1,169 @@
+package com.example.snowflake;
+
+import java.util.ArrayList;
+import java.util.Random;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.view.Display;
+import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
+
+public class MainActivity extends  Activity   
+{
+    private ArrayList<Path> _graphics = new ArrayList<Path>();
+    private Paint mPaint;
+    private int cur_X, cur_Y;
+    int min = -15, max = 15;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) 
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(new DrawingPanel(this));
+        Path path = new Path();
+        mPaint = new Paint();
+        mPaint.setDither(true);
+        mPaint.setColor(0xFFFFFF00);
+        //mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeWidth(3);
+        
+        cur_X = getScreenSize().x/2;
+        cur_Y = getScreenSize().y/2;
+
+    }
+    
+    @SuppressLint("NewApi") private Point getScreenSize(){
+    	Display display = getWindowManager().getDefaultDisplay();
+    	final Point size = new Point();
+    	if(android.os.Build.VERSION.SDK_INT >= 13)
+    		display.getSize(size);
+    	else{
+    		size.x = display.getWidth();
+    		size.y = display.getHeight();
+    	}
+    	return size;
+    }
+
+    class DrawingPanel extends SurfaceView implements SurfaceHolder.Callback 
+    {
+        private DrawingThread _thread;
+        private Path path;
+
+        public DrawingPanel(Context context) 
+        {
+           super(context);
+           run_new_thread();
+        }
+        
+        private void run_new_thread(){
+        	getHolder().addCallback(this);
+            _thread = new DrawingThread(getHolder(), this);
+        }
+
+
+        public boolean onTouchEvent(MotionEvent event) 
+        {
+            synchronized (_thread.getSurfaceHolder()) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                	_thread._non_stop = false;
+//                }else if(event.getAction() == MotionEvent.ACTION_MOVE){
+//                    path.lineTo(event.getX(), event.getY());
+                }else if(event.getAction() == MotionEvent.ACTION_UP){
+                	_thread._non_stop = true;
+                }
+                
+                return true;
+            }
+        }
+
+        @Override
+        public void onDraw(Canvas canvas) {
+        	path = new Path();
+        	path.moveTo(cur_X, cur_Y);
+        	Random r = new Random();
+        	cur_X += r.nextInt((max - min) + 1) + min;
+        	cur_Y += r.nextInt((max - min) + 1) + min;
+        	path.lineTo(cur_X, cur_Y);
+            _graphics.add(path);
+            //canvas.drawPath(path, mPaint);
+            for (Path path : _graphics) {
+                //canvas.drawPoint(graphic.x, graphic.y, mPaint);
+                canvas.drawPath(path, mPaint);
+            }
+        }
+
+        public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                   int height) {
+            // TODO Auto-generated method stub
+
+        }
+
+        public void surfaceCreated(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
+            _thread.setRunning(true);
+            _thread.start();
+        }
+
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
+        	_thread.setRunning(false);
+        }
+    }
+
+    @SuppressLint("WrongCall") class DrawingThread extends Thread {
+        private SurfaceHolder _surfaceHolder;
+        private DrawingPanel _panel;
+        private boolean _run = false;
+        public boolean _non_stop = true;
+
+        public DrawingThread(SurfaceHolder surfaceHolder, DrawingPanel panel) {
+            _surfaceHolder = surfaceHolder;
+            _panel = panel;
+        }
+
+        public void setRunning(boolean run) {
+            _run = run;
+        }
+
+        public SurfaceHolder getSurfaceHolder() {
+            return _surfaceHolder;
+        }
+
+        @Override
+        public void run() {
+            Canvas c;
+            while (_run) {
+                c = null;
+                try {
+                    c = _surfaceHolder.lockCanvas(null);
+                    synchronized (_surfaceHolder) {
+                    	
+                    	if(_run  && _non_stop){
+                        _panel.onDraw(c);
+                    	}
+                    
+                    }
+                } finally {
+                    // do this in a finally so that if an exception is thrown
+                    // during the above, we don't leave the Surface in an
+                    // inconsistent state
+                    if (c != null) {
+                        _surfaceHolder.unlockCanvasAndPost(c);
+                    }
+                }
+            }
+        }
+    }
+}
