@@ -23,9 +23,9 @@ import android.view.SurfaceView;
 
 enum Board{
 	instance;
-	public List<Particle> particles = new LinkedList<Particle>();
+	public List<Particle> particles = null;
     public int DIMENTION_OF_ARRAY = 800;
-    public Particle[][] arrayOfParticles = new Particle[DIMENTION_OF_ARRAY][DIMENTION_OF_ARRAY];
+    public Particle[][] arrayOfParticles = null;
     public Point centerOfScreen = new Point();
     
 }
@@ -35,7 +35,7 @@ class Particle{
 	public static Point centerOfScreen;
 	
 	public Paint colorPaint;
-    private int x, y;
+    public int x, y;
     public ArrayList<Path> _graphics = new ArrayList<Path>();
     
 	public Particle(int x, int y) {
@@ -153,9 +153,13 @@ public class MainActivity extends ActionBarActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(new DrawingPanel(this));
-        
+        Board.instance.particles = new LinkedList<Particle>();
+    	Board.instance.arrayOfParticles = new Particle[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
+     
         initParticles();
     }
+    
+
     
     @SuppressLint("NewApi") private Point getScreenSize(){
     	Display display = getWindowManager().getDefaultDisplay();
@@ -190,18 +194,18 @@ public class MainActivity extends ActionBarActivity {
     	Board.instance.particles.add(particle); 
     	particle = new Particle(x+1, y+2);
     	Board.instance.particles.add(particle); 
-//    	particle = new Particle(x-4, y);
-//    	Board.instance.particles.add(particle);
-//    	particle = new Particle(x+4, y);
-//    	Board.instance.particles.add(particle);
-//    	particle = new Particle(x-2, y - 4);
-//    	Board.instance.particles.add(particle);
-//    	particle = new Particle(x+2, y - 4);
-//    	Board.instance.particles.add(particle);
-//    	particle = new Particle(x-2, y + 4);
-//    	Board.instance.particles.add(particle);
-//    	particle = new Particle(x+2, y + 4);
-//    	Board.instance.particles.add(particle);
+    	particle = new Particle(x-4, y);
+    	Board.instance.particles.add(particle);
+    	particle = new Particle(x+4, y);
+    	Board.instance.particles.add(particle);
+    	particle = new Particle(x-2, y - 4);
+    	Board.instance.particles.add(particle);
+    	particle = new Particle(x+2, y - 4);
+    	Board.instance.particles.add(particle);
+    	particle = new Particle(x-2, y + 4);
+    	Board.instance.particles.add(particle);
+    	particle = new Particle(x+2, y + 4);
+    	Board.instance.particles.add(particle);
     	  
     }
     
@@ -268,7 +272,13 @@ public class MainActivity extends ActionBarActivity {
         	}
         }
         
+        Random rand = new Random();
+        int randomNum = 0;
         private void next_step(){
+        	int min = 0, max = 6;
+        	randomNum =  rand.nextInt((max - min) + 1) + min;
+        	
+        	
         	//born
         	List<Particle> borned = new LinkedList<Particle>();
         	for(Particle p : Board.instance.particles){
@@ -277,34 +287,40 @@ public class MainActivity extends ActionBarActivity {
 
         	
         	//die
-//        	List<Particle> zombies = new LinkedList<Particle>();
-//        	for(Particle p : Board.instance.particles){
-//        		kill_particles(p, zombies);
-//        	}
+        	List<Particle> zombies = new LinkedList<Particle>();
+        	for(Particle p : Board.instance.particles){
+        		kill_particles(p, zombies);
+        	}
         	
         	Board.instance.particles.addAll(borned);
-        	//Board.instance.particles.removeAll(zombies);
+        	Board.instance.particles.removeAll(zombies);
         	
         }
         
         private void kill_particles(Particle p, List<Particle> zombies) {
-        	List<Point> neighbours = p.getNeighbours();
-        	for(Point n : neighbours){
-        		Log.d("show_debug", " " + n.x + " : " + n.y);
-        		Point screenCoords = toScreenCoordinates(n.x, n.y);
-        		if((Board.instance.arrayOfParticles[n.x][n.y] == null) && !born_condition(screenCoords.x, screenCoords.y)){
-        			Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
-        			zombies.add(bornParticle);
-        		}
+        	if(kill_condition(p.x, p.y)){
+        			zombies.add(p); 
         	}
 			
 		}
 
+		private boolean kill_condition(int x, int y) {
+			boolean result = false;
+			Particle placeholder = Particle.createParticlePlaceholder(x, y);
+			int counter = 0;
+			for(Point p : placeholder.getNeighbours()){
+				if(Board.instance.arrayOfParticles[p.x][p.y] != null)
+					counter++;
+			}
+			Log.d("show_debug", "counter: " + counter);
+			return (counter > randomNum)? true : false;
+		}
+
 		private void born_particles(Particle p, List<Particle> borned){
         	List<Point> neighbours = p.getNeighbours();
-        	Log.d("show_debug", "^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        	//Log.d("show_debug", "^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
         	for(Point n : neighbours){
-        		Log.d("show_debug", " " + n.x + " : " + n.y);
+        		//Log.d("show_debug", " " + n.x + " : " + n.y);
         		Point screenCoords = toScreenCoordinates(n.x, n.y);
         		if((Board.instance.arrayOfParticles[n.x][n.y] == null) && born_condition(screenCoords.x, screenCoords.y)){
         			Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
@@ -322,7 +338,7 @@ public class MainActivity extends ActionBarActivity {
 				if(Board.instance.arrayOfParticles[p.x][p.y] != null)
 					counter++;
 			}
-			Log.d("show_debug", "counter: " + counter);
+			//Log.d("show_debug", "counter: " + counter);
 			return (counter > 0 && counter < 3)? true : false;
 		}
 
