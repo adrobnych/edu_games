@@ -68,17 +68,17 @@ public class MainActivity extends ActionBarActivity {
     	particleOne.colorPaint.setDither(true);
     	particleOne.colorPaint.setColor(0xFFFFFFFF);
     	particleOne.colorPaint.setStyle(Paint.Style.STROKE);
-    	//particleOne.colorPaint.setStrokeJoin(Paint.Join.ROUND);
-    	//particleOne.colorPaint.setStrokeCap(Paint.Cap.ROUND);
+    	particleOne.colorPaint.setStrokeJoin(Paint.Join.ROUND);
+    	particleOne.colorPaint.setStrokeCap(Paint.Cap.ROUND);
     	particleOne.colorPaint.setStrokeWidth(2);
     }
     
     public Point toScreenCoordinates(int sX, int sY){
 		Point point = new Point();
-		if(((sY - centerOfScreen.y)/2)%2 != 0)
-			sX = sX + 1;
 		point.x = centerOfScreen.x + (sX - DIMENTION_OF_ARRAY/2) * 2;
 		point.y = centerOfScreen.y + (sY - DIMENTION_OF_ARRAY/2) * 2;
+		if(((point.y - centerOfScreen.y)/2)%2 != 0)
+			point.x = point.x + 1;
 		return point;
 	}
     
@@ -99,8 +99,6 @@ public class MainActivity extends ActionBarActivity {
     		Point point = new Point();
     		point.x = (x - centerOfScreen.x)/2  +  DIMENTION_OF_ARRAY/2;
     		point.y = (y - centerOfScreen.y)/2  +  DIMENTION_OF_ARRAY/2;
-    		if(((point.y - centerOfScreen.y)/2)%2 != 0)
-    			point.x = point.x - 1;
     		return point;
     	}
     	
@@ -146,7 +144,7 @@ public class MainActivity extends ActionBarActivity {
 				resultList.add(new Point(toArrayCoordinates().x, toArrayCoordinates().y + 1));
 				resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y + 1 ));
 				
-			}	
+				
 			
 			return resultList;
 		}
@@ -209,21 +207,15 @@ public class MainActivity extends ActionBarActivity {
         	List<Point> neighbours = p.getNeighbours();
         	for(Point n : neighbours){
         		Point screenCoords = toScreenCoordinates(n.x, n.y);
-        		if(arrayOfParticles[n.x][n.y] == null){ // && born_condition(n.x, n.y)){
-        			Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
-        			borned.add(bornParticle);
+        		if(arrayOfParticles[n.x][n.y] == null){
+        		Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
+        		borned.add(bornParticle);
         		}
         	}
         }
         
 
-//        private boolean born_condition(int x, int y) {
-//			boolean result = false;
-//			for(Particle p : )
-//			return result;
-//		}
-
-		@Override
+        @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width,
                                    int height) {
             // TODO Auto-generated method stub
