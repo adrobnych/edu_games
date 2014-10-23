@@ -27,7 +27,7 @@ import android.view.SurfaceView;
 enum Board{
 	instance;
 	public List<Particle> particles = null;
-    public int DIMENTION_OF_ARRAY = 250;
+    public int DIMENTION_OF_ARRAY = 100;
     public int[][] arrayOfParticles = null;
     public Point centerOfScreen = new Point();
     public DrawingThread thread = null;
