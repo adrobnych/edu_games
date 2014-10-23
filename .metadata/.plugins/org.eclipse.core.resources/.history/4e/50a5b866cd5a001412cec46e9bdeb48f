@@ -247,23 +247,23 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-//        public boolean onTouchEvent(MotionEvent event) 
-//        {
-//            synchronized (_thread.getSurfaceHolder()) {
-//                if(event.getAction() == MotionEvent.ACTION_DOWN){
-//                	_thread._non_stop = false;
-//                }else if(event.getAction() == MotionEvent.ACTION_UP){
-//                	_thread._non_stop = true;
-//                }
-//                
-//                return true;
-//            }
-//        }
+        public boolean onTouchEvent(MotionEvent event) 
+        {
+            synchronized (_thread.getSurfaceHolder()) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                	_thread._non_stop = false;
+                }else if(event.getAction() == MotionEvent.ACTION_UP){
+                	_thread._non_stop = true;
+                }
+                
+                return true;
+            }
+        }
 
-
+        int flag = 10;
         @Override
         synchronized public void onDraw(Canvas canvas) {
-
+        	if(true)//--flag >= 0){
         	next_step();
 
         	canvas.drawColor(Color.BLACK);
