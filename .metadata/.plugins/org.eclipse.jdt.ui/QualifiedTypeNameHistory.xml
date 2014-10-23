@@ -6,6 +6,9 @@
 <fullyQualifiedTypeName name="android.graphics.Paint"/>
 <fullyQualifiedTypeName name="android.util.Log"/>
 <fullyQualifiedTypeName name="android.graphics.Point"/>
-<fullyQualifiedTypeName name="java.util.LinkedList"/>
 <fullyQualifiedTypeName name="com.example.snowflakegrowth.MainActivity.Particle"/>
+<fullyQualifiedTypeName name="android.graphics.Color"/>
+<fullyQualifiedTypeName name="java.util.LinkedList"/>
+<fullyQualifiedTypeName name="com.example.snowflakegrowth.Board"/>
+<fullyQualifiedTypeName name="com.example.snowflakegrowth.Particle"/>
 </qualifiedTypeNameHistroy>

@@ -9,6 +9,7 @@ import java.util.Random;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -24,8 +25,8 @@ import android.view.SurfaceView;
 enum Board{
 	instance;
 	public List<Particle> particles = null;
-    public int DIMENTION_OF_ARRAY = 800;
-    public Particle[][] arrayOfParticles = null;
+    public int DIMENTION_OF_ARRAY = 100;
+    public int[][] arrayOfParticles = null;
     public Point centerOfScreen = new Point();
     
 }
@@ -38,12 +39,12 @@ class Particle{
     public int x, y;
     public ArrayList<Path> _graphics = new ArrayList<Path>();
     
-	public Particle(int x, int y) {
+	public Particle(int x, int y, int[][] array) {
 		this.x = x;
 		this.y = y;
 		create_graphics();
 		Point positionInArray = toArrayCoordinates();
-		Board.instance.arrayOfParticles[positionInArray.x][positionInArray.y] = this;
+		array[positionInArray.x][positionInArray.y] = 1;
 	}
 	
 	 public static Particle createParticlePlaceholder(int x, int y) {
@@ -102,8 +103,8 @@ class Particle{
 		
 			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y));
 			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y));
-//			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y));
-//			resultList.add(new Point(toArrayCoordinates().x + 2, toArrayCoordinates().y));
+			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y));
+			resultList.add(new Point(toArrayCoordinates().x + 2, toArrayCoordinates().y));
 
 			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y - 1));
 			resultList.add(new Point(toArrayCoordinates().x, toArrayCoordinates().y - 1 ));
@@ -111,19 +112,19 @@ class Particle{
 			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y + 1));
 			resultList.add(new Point(toArrayCoordinates().x, toArrayCoordinates().y + 1 ));
 			
-//			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y - 2));
-//			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y - 2));
-//			
-//			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y + 2));
-//			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y + 2));
+			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y - 2));
+			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y - 2));
+			
+			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y + 2));
+			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y + 2));
 		
 		}
 		else{
 			
 			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y));
 			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y));
-//			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y));
-//			resultList.add(new Point(toArrayCoordinates().x + 2, toArrayCoordinates().y));
+			resultList.add(new Point(toArrayCoordinates().x - 2, toArrayCoordinates().y));
+			resultList.add(new Point(toArrayCoordinates().x + 2, toArrayCoordinates().y));
 			
 			resultList.add(new Point(toArrayCoordinates().x, toArrayCoordinates().y - 1));
 			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y - 1 ));
@@ -131,11 +132,11 @@ class Particle{
 			resultList.add(new Point(toArrayCoordinates().x, toArrayCoordinates().y + 1));
 			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y + 1 ));
 			
-//			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y -2));
-//			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y -2));
-//			
-//			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y +2));
-//			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y +2));
+			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y -2));
+			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y -2));
+			
+			resultList.add(new Point(toArrayCoordinates().x - 1, toArrayCoordinates().y +2));
+			resultList.add(new Point(toArrayCoordinates().x + 1, toArrayCoordinates().y +2));
 			
 		}	
 		
@@ -154,7 +155,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(new DrawingPanel(this));
         Board.instance.particles = new LinkedList<Particle>();
-    	Board.instance.arrayOfParticles = new Particle[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
+    	Board.instance.arrayOfParticles = new int[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
      
         initParticles();
     }
@@ -180,31 +181,31 @@ public class MainActivity extends ActionBarActivity {
     	Board.instance.centerOfScreen.x = x;
     	Board.instance.centerOfScreen.y = y;
     	
-    	Particle particle = new Particle(x-1, y-2);
+    	Particle particle = new Particle(x-1, y-2, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x+1, y-2);
+    	particle = new Particle(x+1, y-2, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x, y);
+    	particle = new Particle(x, y, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y);
+    	particle = new Particle(x-2, y, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y);
+    	particle = new Particle(x+2, y, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-1, y+2);
+    	particle = new Particle(x-1, y+2, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x+1, y+2);
+    	particle = new Particle(x+1, y+2, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x-4, y);
+    	particle = new Particle(x-4, y, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+4, y);
+    	particle = new Particle(x+4, y, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y - 4);
+    	particle = new Particle(x-2, y - 4, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y - 4);
+    	particle = new Particle(x+2, y - 4, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y + 4);
+    	particle = new Particle(x-2, y + 4, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y + 4);
+    	particle = new Particle(x+2, y + 4, Board.instance.arrayOfParticles);
     	Board.instance.particles.add(particle);
     	  
     }
@@ -261,7 +262,7 @@ public class MainActivity extends ActionBarActivity {
         	if(true)//--flag >= 0){
         	next_step();
 
-
+        	canvas.drawColor(Color.BLACK);
         	for(Particle p : Board.instance.particles){
 
         		for (Path path : p._graphics){
@@ -274,60 +275,93 @@ public class MainActivity extends ActionBarActivity {
         
         Random rand = new Random();
         int randomNum = 0;
-        private void next_step(){
-        	int min = 0, max = 6;
+        int[][] newAarrayOfParticles;
+        
+        synchronized private void next_step(){
+        	int min = 1, max = 8;
         	randomNum =  rand.nextInt((max - min) + 1) + min;
+        	newAarrayOfParticles = new int[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
+        	
+        	 
+        	Board.instance.particles = new LinkedList<Particle>();
+        	
+        	recalculate();
+        	
+        	Board.instance.arrayOfParticles = newAarrayOfParticles;
         	
         	
-        	//born
-        	List<Particle> borned = new LinkedList<Particle>();
-        	for(Particle p : Board.instance.particles){
-        		born_particles(p, borned);
-        	}
-
-        	
-        	//die
-        	List<Particle> zombies = new LinkedList<Particle>();
-        	for(Particle p : Board.instance.particles){
-        		kill_particles(p, zombies);
-        	}
-        	
-        	Board.instance.particles.addAll(borned);
-        	Board.instance.particles.removeAll(zombies);
-        	
+//        	//born
+//        	List<Particle> borned = new LinkedList<Particle>();
+//        	for(Particle p : Board.instance.particles){
+//        		born_particles(p, borned);
+//        	}
+//
+//        	
+//        	
+//        	//die
+//        	List<Particle> zombies = new LinkedList<Particle>();
+//        	for(Particle p : Board.instance.particles){
+//        		kill_particles(p, zombies);
+//        	}
+//        	
+//        	
+//        	Board.instance.particles.removeAll(zombies);
+//        	Board.instance.particles.addAll(borned);
+//        	
         }
         
-        private void kill_particles(Particle p, List<Particle> zombies) {
-        	if(kill_condition(p.x, p.y)){
-        			zombies.add(p); 
-        	}
-			
+        private void recalculate() {
+			for(int x=3; x<Board.instance.DIMENTION_OF_ARRAY - 3; x++)
+				for(int y=3; y<Board.instance.DIMENTION_OF_ARRAY - 3; y++)
+					if(born(x, y)){
+						Point screenCoords = toScreenCoordinates(x, y);
+						Particle bornParticle = new Particle(screenCoords.x, screenCoords.y, newAarrayOfParticles);
+						Board.instance.particles.add(bornParticle);
+					}
+		}
+        
+        
+
+		private boolean born(int arrx, int arry) {
+			Point screenCoords = toScreenCoordinates(arrx, arry);
+			if(born_condition(screenCoords.x, screenCoords.y)){
+    			return true;
+    		}
+        	return false;
 		}
 
-		private boolean kill_condition(int x, int y) {
-			boolean result = false;
-			Particle placeholder = Particle.createParticlePlaceholder(x, y);
-			int counter = 0;
-			for(Point p : placeholder.getNeighbours()){
-				if(Board.instance.arrayOfParticles[p.x][p.y] != null)
-					counter++;
-			}
-			Log.d("show_debug", "counter: " + counter);
-			return (counter > randomNum)? true : false;
-		}
-
-		private void born_particles(Particle p, List<Particle> borned){
-        	List<Point> neighbours = p.getNeighbours();
-        	//Log.d("show_debug", "^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        	for(Point n : neighbours){
-        		//Log.d("show_debug", " " + n.x + " : " + n.y);
-        		Point screenCoords = toScreenCoordinates(n.x, n.y);
-        		if((Board.instance.arrayOfParticles[n.x][n.y] == null) && born_condition(screenCoords.x, screenCoords.y)){
-        			Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
-        			borned.add(bornParticle);
-        		}
-        	}
-        }
+//		private void kill_particles(Particle p, List<Particle> zombies) {
+//        	if(kill_condition(p.x, p.y)){ // || !born_condition(p.x, p.y)){
+//        			zombies.add(p); 
+//        	}
+//			
+//		}
+//
+//		private boolean kill_condition(int x, int y) {
+//			boolean result = false;
+//			Particle placeholder = Particle.createParticlePlaceholder(x, y);
+//			int counter = 0;
+//			for(Point p : placeholder.getNeighbours()){
+//				if(Board.instance.arrayOfParticles[p.x][p.y] == 1)
+//					counter++;
+//			}
+//			//Log.d("show_debug", "counter: " + counter);
+//			return (counter > randomNum) ? true  : false;
+//			//return (counter % 2 ==0)? true : false;
+//		}
+//
+//		private void born_particles(Particle p, List<Particle> borned){
+//        	List<Point> neighbours = p.getNeighbours();
+//        	//Log.d("show_debug", "^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+//        	for(Point n : neighbours){
+//        		//Log.d("show_debug", " " + n.x + " : " + n.y);
+//        		Point screenCoords = toScreenCoordinates(n.x, n.y);
+//        		if((Board.instance.arrayOfParticles[n.x][n.y] != 0) && born_condition(screenCoords.x, screenCoords.y)){
+//        			Particle bornParticle = new Particle(screenCoords.x, screenCoords.y);
+//        			borned.add(bornParticle);
+//        		}
+//        	}
+//        }
         
 
         private boolean born_condition(int x, int y) {
@@ -335,11 +369,15 @@ public class MainActivity extends ActionBarActivity {
 			Particle placeholder = Particle.createParticlePlaceholder(x, y);
 			int counter = 0;
 			for(Point p : placeholder.getNeighbours()){
-				if(Board.instance.arrayOfParticles[p.x][p.y] != null)
+				if(Board.instance.arrayOfParticles[p.x][p.y] == 1)
 					counter++;
 			}
 			//Log.d("show_debug", "counter: " + counter);
-			return (counter > 0 && counter < 3)? true : false;
+			//return (counter >= 4)? true : false;
+			//return (counter >= 3)? true : false;
+			//if(counter > randomNum) return false;
+			return (counter % 2 !=0)? true : false;
+			//return (counter >= 2)? true : false;
 		}
 
 		@Override
