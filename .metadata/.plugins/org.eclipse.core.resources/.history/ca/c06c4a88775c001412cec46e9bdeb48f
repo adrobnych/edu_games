@@ -236,6 +236,7 @@ public class MainActivity extends ActionBarActivity {
     {
         private DrawingThread _thread;
         private Path path;
+        
 
         public DrawingPanel(Context context) 
         {
@@ -253,12 +254,22 @@ public class MainActivity extends ActionBarActivity {
         public boolean onTouchEvent(MotionEvent event) 
         {
             synchronized (_thread.getSurfaceHolder()) {
-
+//                if(event.getAction() == MotionEvent.ACTION_DOWN){
+//                	_thread._non_stop = false;
+//                }else 
         	if(event.getAction() == MotionEvent.ACTION_UP){
                 	_thread._non_stop = !_thread._non_stop;
-                	
+                	Canvas c = getHolder().lockCanvas(null);
+                	for(Particle p : Board.instance.particles){
+
+                		for (Path path : p._graphics){
+                			//Log.e("show_debug", "path: " + path);
+                            c.drawPath(path, p.colorPaint);
+                            
+                		}
+                	}
                 }
-          
+//                
                 return true;
             }
         }
@@ -366,7 +377,8 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-    @SuppressLint("WrongCall") class DrawingThread extends Thread {
+    @SuppressLint("WrongCall") 
+    class DrawingThread extends Thread {
         private SurfaceHolder _surfaceHolder;
         private DrawingPanel _panel;
         private boolean _run = false;

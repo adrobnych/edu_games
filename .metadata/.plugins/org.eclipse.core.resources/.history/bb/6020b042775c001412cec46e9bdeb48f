@@ -87,7 +87,7 @@ class Particle{
     	particleOne.colorPaint.setStyle(Paint.Style.STROKE);
     	//particleOne.colorPaint.setStrokeJoin(Paint.Join.ROUND);
     	//particleOne.colorPaint.setStrokeCap(Paint.Cap.ROUND);
-    	particleOne.colorPaint.setStrokeWidth(2);
+    	particleOne.colorPaint.setStrokeWidth(1);
     }
 
 	public List<Point> getNeighbours() {
@@ -253,12 +253,13 @@ public class MainActivity extends ActionBarActivity {
         public boolean onTouchEvent(MotionEvent event) 
         {
             synchronized (_thread.getSurfaceHolder()) {
-
+//                if(event.getAction() == MotionEvent.ACTION_DOWN){
+//                	_thread._non_stop = false;
+//                }else 
         	if(event.getAction() == MotionEvent.ACTION_UP){
                 	_thread._non_stop = !_thread._non_stop;
-                	
                 }
-          
+//                
                 return true;
             }
         }

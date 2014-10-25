@@ -87,7 +87,7 @@ class Particle{
     	particleOne.colorPaint.setStyle(Paint.Style.STROKE);
     	//particleOne.colorPaint.setStrokeJoin(Paint.Join.ROUND);
     	//particleOne.colorPaint.setStrokeCap(Paint.Cap.ROUND);
-    	particleOne.colorPaint.setStrokeWidth(2);
+    	particleOne.colorPaint.setStrokeWidth(1);
     }
 
 	public List<Point> getNeighbours() {
