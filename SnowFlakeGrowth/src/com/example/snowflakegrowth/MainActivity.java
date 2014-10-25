@@ -1,6 +1,7 @@
 package com.example.snowflakegrowth;
 
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -27,10 +28,11 @@ import android.view.SurfaceView;
 enum Board{
 	instance;
 	public List<Particle> particles = null;
-    public int DIMENTION_OF_ARRAY = 250;
-    public int[][] arrayOfParticles = null;
+    public int DIMENTION_OF_ARRAY = 150;
+    public int[][][] arrayOfParticles = null;
     public Point centerOfScreen = new Point();
     public DrawingThread thread = null;
+    public int current_array = 0;
 }
 
 
@@ -74,16 +76,8 @@ class Particle{
 		initPaint(this);
 		Path path = new Path();
     	path.moveTo(x,y);
-    	path.lineTo(x+1, y);
-    	_graphics.add(path);
-    	path = new Path();
-    	path.moveTo(x+1,y);
     	path.lineTo(x+1, y+1);
     	_graphics.add(path);
-    	path = new Path();
-    	path.moveTo(x+1,y+1);
-    	path.lineTo(x, y+1);
-		_graphics.add(path);
 	}
 	
 	private void initPaint(Particle particleOne){
@@ -155,15 +149,24 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(new DrawingPanel(this));
         Board.instance.particles = new LinkedList<Particle>();
-    	Board.instance.arrayOfParticles = new int[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
-     
+    	Board.instance.arrayOfParticles = new int[2][Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
+
         initParticles();
     }
     
     @Override
     protected void onStop() {
     	super.onStop();
+		
+		try {
+			Board.instance.thread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Board.instance.thread.setRunning(false);
+		Board.instance.arrayOfParticles = null;
+		
     }
 
     
@@ -186,31 +189,31 @@ public class MainActivity extends ActionBarActivity {
     	Board.instance.centerOfScreen.x = x;
     	Board.instance.centerOfScreen.y = y;
     	
-    	Particle particle = new Particle(x-1, y-2, Board.instance.arrayOfParticles);
+    	Particle particle = new Particle(x-1, y-2, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x+1, y-2, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+1, y-2, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x, y, Board.instance.arrayOfParticles);
+    	particle = new Particle(x, y, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y, Board.instance.arrayOfParticles);
+    	particle = new Particle(x-2, y, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+2, y, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-1, y+2, Board.instance.arrayOfParticles);
+    	particle = new Particle(x-1, y+2, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x+1, y+2, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+1, y+2, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle); 
-    	particle = new Particle(x-4, y, Board.instance.arrayOfParticles);
+    	particle = new Particle(x-4, y, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+4, y, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+4, y, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y - 4, Board.instance.arrayOfParticles);
+    	particle = new Particle(x-2, y - 4, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y - 4, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+2, y - 4, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x-2, y + 4, Board.instance.arrayOfParticles);
+    	particle = new Particle(x-2, y + 4, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
-    	particle = new Particle(x+2, y + 4, Board.instance.arrayOfParticles);
+    	particle = new Particle(x+2, y + 4, Board.instance.arrayOfParticles[Board.instance.current_array]);
     	Board.instance.particles.add(particle);
     	  
     }
@@ -247,18 +250,19 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-//        public boolean onTouchEvent(MotionEvent event) 
-//        {
-//            synchronized (_thread.getSurfaceHolder()) {
+        public boolean onTouchEvent(MotionEvent event) 
+        {
+            synchronized (_thread.getSurfaceHolder()) {
 //                if(event.getAction() == MotionEvent.ACTION_DOWN){
 //                	_thread._non_stop = false;
-//                }else if(event.getAction() == MotionEvent.ACTION_UP){
-//                	_thread._non_stop = true;
-//                }
+//                }else 
+        	if(event.getAction() == MotionEvent.ACTION_UP){
+                	_thread._non_stop = !_thread._non_stop;
+                }
 //                
-//                return true;
-//            }
-//        }
+                return true;
+            }
+        }
 
 
         @Override
@@ -279,25 +283,40 @@ public class MainActivity extends ActionBarActivity {
         
         Random rand = new Random();
         int randomNum = 0;
+        int[][] oldAarrayOfParticles;
         int[][] newAarrayOfParticles;
+        int current_arr_size = 20;
         
         synchronized private void next_step(){
         	int min = 1, max = 8;
         	randomNum =  rand.nextInt((max - min) + 1) + min;
-        	newAarrayOfParticles = new int[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
-        	
+
+        	if(current_arr_size < Board.instance.DIMENTION_OF_ARRAY - 3)
+        		current_arr_size += 4;
+        	oldAarrayOfParticles = Board.instance.arrayOfParticles[Board.instance.current_array];
+        	Board.instance.current_array = Math.abs(Board.instance.current_array - 1);
+        	newAarrayOfParticles = Board.instance.arrayOfParticles[Board.instance.current_array];//new int[Board.instance.DIMENTION_OF_ARRAY][Board.instance.DIMENTION_OF_ARRAY];
+        	empty_board(newAarrayOfParticles);
         	 
         	Board.instance.particles = new LinkedList<Particle>();
         	
         	recalculate();
-        	
-        	Board.instance.arrayOfParticles = newAarrayOfParticles;
         	        	
         }
         
-        private void recalculate() {
-			for(int x=3; x<Board.instance.DIMENTION_OF_ARRAY - 3; x++)
-				for(int y=3; y<Board.instance.DIMENTION_OF_ARRAY - 3; y++)
+        private void empty_board(int[][] newAarrayOfParticles2) {
+        	for(int x= Board.instance.DIMENTION_OF_ARRAY/2 - current_arr_size/2 + 3; 
+        			x< Board.instance.DIMENTION_OF_ARRAY/2 + current_arr_size/2 - 3; x++)
+				for(int y= Board.instance.DIMENTION_OF_ARRAY/2 - current_arr_size/2 + 3;
+						y< Board.instance.DIMENTION_OF_ARRAY/2 + current_arr_size/2 - 3; y++)
+					newAarrayOfParticles2[x][y] = 0;
+		}
+
+		private void recalculate() {
+			for(int x=Board.instance.DIMENTION_OF_ARRAY/2 - current_arr_size/2 + 3;
+					x<Board.instance.DIMENTION_OF_ARRAY/2 + current_arr_size/2 - 3; x++)
+				for(int y= Board.instance.DIMENTION_OF_ARRAY/2 - current_arr_size/2 + 3; 
+						y<Board.instance.DIMENTION_OF_ARRAY/2 + current_arr_size/2 - 3; y++)
 					if(born(x, y)){
 						Point screenCoords = toScreenCoordinates(x, y);
 						Particle bornParticle = new Particle(screenCoords.x, screenCoords.y, newAarrayOfParticles);
@@ -321,7 +340,7 @@ public class MainActivity extends ActionBarActivity {
 			Particle placeholder = Particle.createParticlePlaceholder(x, y);
 			int counter = 0;
 			for(Point p : placeholder.getNeighbours()){
-				if(Board.instance.arrayOfParticles[p.x][p.y] == 1)
+				if(oldAarrayOfParticles[p.x][p.y] == 1)
 					counter++;
 			}
 			if(counter > randomNum) return false;
@@ -338,7 +357,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             _thread.setRunning(true);
-            _thread.start();
+           _thread.start();
         }
 
         @Override
@@ -352,7 +371,7 @@ public class MainActivity extends ActionBarActivity {
         private SurfaceHolder _surfaceHolder;
         private DrawingPanel _panel;
         private boolean _run = false;
-        public boolean _non_stop = true;
+        public boolean _non_stop = false;
 
         public DrawingThread(SurfaceHolder surfaceHolder, DrawingPanel panel) {
             _surfaceHolder = surfaceHolder;
@@ -369,9 +388,9 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void run() {
-            Canvas c;
+            Canvas c = null;
             while (_run) {
-                c = null;
+                //c = null;
                 try {
                     c = _surfaceHolder.lockCanvas(null);
                     synchronized (_surfaceHolder) {
